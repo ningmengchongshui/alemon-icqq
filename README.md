@@ -12,7 +12,9 @@ import { type IcqqLoginMap } from 'alemon-icqq'
 export default ALoginOptions<IcqqLoginMap>({
   test: {
     icqq: {
-      //
+      sign_api_addr: '',
+      account: 0,
+      password: ''
     }
   }
 })

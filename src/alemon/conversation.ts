@@ -7,16 +7,11 @@ import { AEvent } from 'alemonjs'
  */
 export const conversation = {
   meta: (event: any) => {
-    if (event.status && event.status.bots) {
-      const bot = event.status.bots[0]
-      BotMessage.set('id', bot.self.user_id)
-      BotMessage.set('name', bot.self.nickname)
-    }
+    //
   },
   message: (event: any): AEvent => {
-    if (process.env?.ALEMONJS_EVENT == 'dev') console.info('event', event)
-    if (event.detail_type == 'private') {
-      return DIRECT_MESSAGE(event as Event)
+    if (event.message_type == 'private') {
+      return DIRECT_MESSAGE(event)
     } else {
       return MESSAGES(event as any)
     }

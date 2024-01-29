@@ -10,38 +10,32 @@ import {
   type MessageBingdingOption,
   type AEvent
 } from 'alemonjs'
+import { GroupMessage } from 'icqq'
 /**
  * 公信事件
  * @param socket
  * @param event
  * @returns
  */
-export function MESSAGES(event: any): AEvent {
+export function MESSAGES(event: GroupMessage): AEvent {
   const masterID = config.get('masterID')
-
-  /**
-   * group中
-   * guild_id = channel_id = group_id
-   */
-
+  const user_id = String(event.sender.user_id)
+  const group_id = String(event.group_id)
   const e = {
-    platform: 'one',
+    platform: 'icqq',
     event: 'MESSAGES' as (typeof EventEnum)[number],
     typing: 'CREATE' as (typeof TypingEnum)[number],
     boundaries: 'publick' as 'publick' | 'private',
-    attribute:
-      event.detail_type == 'private'
-        ? 'single'
-        : ('group' as 'group' | 'single'),
+    attribute: 'single' as 'group' | 'single',
     bot: BotMessage.get(),
     isMaster: Array.isArray(masterID)
-      ? masterID.includes(event.user_id)
-      : event.user_id == masterID,
-    guild_id: event.group_id,
+      ? masterID.includes(user_id)
+      : user_id == masterID,
+    guild_id: group_id,
     guild_avatar: '',
     guild_name: event.group_name,
     channel_name: '',
-    channel_id: event.group_id,
+    channel_id: group_id,
     attachments: [],
     specials: [],
     at: false,
@@ -50,13 +44,10 @@ export function MESSAGES(event: any): AEvent {
     msg_txt: event.raw_message,
     msg: event.raw_message.trim(),
     msg_id: event.message_id,
-    open_id: event.user_id,
+    open_id: user_id,
     quote: '',
-    user_id: event.user_id,
-    user_avatar:
-      event.platform == 'qq'
-        ? `https://q1.qlogo.cn/g?b=qq&s=0&nk=${event.user_id}`
-        : 'https://q1.qlogo.cn/g?b=qq&s=0&nk=1715713638',
+    user_id: user_id,
+    user_avatar: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${user_id}`,
     user_name: event.sender.nickname,
     segment: segmentONE,
     send_at: new Date().getTime(),
@@ -73,33 +64,18 @@ export function MESSAGES(event: any): AEvent {
       if (select?.open_id && select?.open_id != '') {
         return await directController(msg, select?.open_id)
       }
-      const guild_id = select?.guild_id ?? event.group_id
+      const guild_id = select?.guild_id ?? group_id
       return await replyController(msg, guild_id)
     }
   }
-
   const arr: {
     qq: number
     text: string
     user_id: number
   }[] = []
-
-  for (const item of event.message) {
-    if (item.type == 'mention') {
-      arr.push(item.data)
-      e.at_users.push({
-        avatar: '',
-        bot: false,
-        id: item.data.user_id,
-        name: item.data.text.replace(/^@/, '')
-      })
-    }
-  }
-
   for (const item of arr) {
     e.msg = e.msg.replace(item.text, '').trim()
   }
-
   /**
    * 存在at
    */
@@ -109,6 +85,5 @@ export function MESSAGES(event: any): AEvent {
      */
     e.at_user = e.at_users.find(item => item.bot != true)
   }
-
   return e
 }

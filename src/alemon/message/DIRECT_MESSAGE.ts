@@ -10,27 +10,27 @@ import {
   type AEvent
 } from 'alemonjs'
 
+import { PrivateMessage } from 'icqq'
+
 /**
  * 私信事件
  * @param socket
  * @param event
  * @returns
  */
-export function DIRECT_MESSAGE(event: any): AEvent {
+export function DIRECT_MESSAGE(event: PrivateMessage): AEvent {
   const masterID = config.get('masterID')
+  const user_id = String(event.sender.user_id)
   const e = {
-    platform: 'one',
+    platform: 'icqq',
     event: 'MESSAGES' as (typeof EventEnum)[number],
     typing: 'CREATE' as (typeof TypingEnum)[number],
     boundaries: 'publick' as 'publick' | 'private',
-    attribute:
-      event.detail_type == 'private'
-        ? 'single'
-        : ('group' as 'group' | 'single'),
+    attribute: 'single' as 'group' | 'single',
     bot: BotMessage.get(),
     isMaster: Array.isArray(masterID)
-      ? masterID.includes(event.user_id)
-      : event.user_id == masterID,
+      ? masterID.includes(user_id)
+      : user_id == masterID,
     guild_id: '',
     guild_name: '',
     guild_avatar: '',
@@ -46,13 +46,10 @@ export function DIRECT_MESSAGE(event: any): AEvent {
     msg: event.raw_message.trim(),
     msg_id: event.message_id,
     quote: '',
-    open_id: event.user_id,
+    open_id: user_id,
     //
-    user_id: event.user_id,
-    user_avatar:
-      event.platform == 'qq'
-        ? `https://q1.qlogo.cn/g?b=qq&s=0&nk=${event.user_id}`
-        : 'https://q1.qlogo.cn/g?b=qq&s=0&nk=1715713638',
+    user_id: user_id,
+    user_avatar: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${user_id}`,
     user_name: event.sender.nickname,
     send_at: new Date().getTime(),
     segment: segmentONE,
@@ -66,7 +63,7 @@ export function DIRECT_MESSAGE(event: any): AEvent {
       msg: Buffer | string | number | (Buffer | number | string)[],
       select?: MessageBingdingOption
     ): Promise<any> => {
-      return await directController(msg, event.user_id)
+      return await directController(msg, user_id)
     }
   }
 

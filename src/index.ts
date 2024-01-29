@@ -20,23 +20,24 @@ export default {
    * @param responseEventType 调用alemonjs的res非指令消息
    */
   login: (options: ClientConfig, responseMessage, responseEventType) => {
+    if (!options.log_level) {
+      options.log_level = 'off'
+    }
     // 加载配置
     for (const item in options) {
       config.set(item as any, options['item'])
     }
     createWsHandler(options, event => {
-      if (process.env.ICQQ_WS == 'dev') console.log(event)
-      if (conversation[event.type]) {
-        if (event.type == 'meta') {
-          conversation[event.type](event)
+      if (process.env?.ALEMONJS_EVENT == 'dev') console.info('event', event)
+      if (conversation[event.post_type]) {
+        if (event.post_type == 'message') {
+          conversation[event.post_type](event)
         } else {
           const e = conversation[event.type](event)
           responseMessage(e)
         }
       } else {
-        if (event?.status != 'ok') {
-          //
-        }
+        //
       }
     })
   },
