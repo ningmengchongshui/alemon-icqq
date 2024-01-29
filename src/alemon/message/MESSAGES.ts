@@ -12,6 +12,7 @@ import {
 } from 'alemonjs'
 // icqq
 import { GroupMessage } from 'icqq'
+import { BOTNAME } from '../../icqq.js'
 /**
  * 公信事件
  * @param socket
@@ -23,11 +24,11 @@ export function MESSAGES(event: GroupMessage): AEvent {
   const user_id = String(event.sender.user_id)
   const group_id = String(event.group_id)
   const e = {
-    platform: 'icqq',
+    platform: BOTNAME,
     event: 'MESSAGES' as (typeof EventEnum)[number],
     typing: 'CREATE' as (typeof TypingEnum)[number],
     boundaries: 'private' as 'publick' | 'private',
-    attribute: 'single' as 'group' | 'single',
+    attribute: 'group' as 'group' | 'single',
     bot: BotMessage.get(),
     isMaster: Array.isArray(masterID)
       ? masterID.includes(user_id)
@@ -69,7 +70,7 @@ export function MESSAGES(event: GroupMessage): AEvent {
       return await replyController(msg, guild_id)
     }
   }
-
+  const botAccount = config.get('botAccount')
   for (const msg of event.message) {
     if (msg.type == 'at') {
       e.at = true
@@ -77,18 +78,11 @@ export function MESSAGES(event: GroupMessage): AEvent {
         id: String(msg.qq),
         name: '',
         avatar: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${msg.qq}`,
-        bot: msg.qq == e.bot.id
+        bot: botAccount.includes(String(msg.qq))
       })
     }
   }
-
-  /**
-   * 存在at
-   */
   if (e.at) {
-    /**
-     * 得到第一个艾特
-     */
     e.at_user = e.at_users.find(item => item.bot != true)
   }
   return e

@@ -38,14 +38,15 @@ export async function replyController(
       })
       .filter(element => typeof element === 'string')
       .join('')
+
     try {
       const buff = msg[isBuffer] as Buffer
       return {
         middle: [],
-        backhaul: await client.sendGroupMsg(
-          Number(guild_id),
-          segment.image(buff)
-        )
+        backhaul: await client.sendGroupMsg(Number(guild_id), [
+          segment.image(buff),
+          ...extractContent(cont)
+        ])
       }
     } catch (err) {
       console.error(err)
@@ -73,16 +74,39 @@ export async function replyController(
     if (Buffer.isBuffer(msg)) {
       return {
         middle: [],
-        backhaul: await client.sendGroupMsg(
-          Number(guild_id),
-          segment.image(msg)
-        )
+        backhaul: await client.sendGroupMsg(Number(guild_id), [
+          segment.image(msg),
+          ...extractContent(content)
+        ])
       }
     }
   }
 
   return {
     middle: [],
-    backhaul: await client.sendGroupMsg(Number(guild_id), content)
+    backhaul: await client.sendGroupMsg(
+      Number(guild_id),
+      extractContent(content)
+    )
   }
+}
+
+function extractContent(input: string): any[] {
+  input.replace(/<http>(.*?)<\/http>/g, '')
+  const regex = /<@([^>]+)>/g
+  let match
+  const result = []
+  while ((match = regex.exec(input)) !== null) {
+    const content1 = match[1]
+    const content2 = input.substring(match.index! + match[0].length)
+    result.push(
+      input.substring(0, match.index),
+      segment.at(content1 == 'all' ? 'all' : Number(content1)),
+      content2
+    )
+  }
+  if (result.length === 0) {
+    return [input]
+  }
+  return result
 }

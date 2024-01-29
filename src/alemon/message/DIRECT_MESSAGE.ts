@@ -11,6 +11,7 @@ import {
 } from 'alemonjs'
 // icqq
 import { PrivateMessage } from 'icqq'
+import { BOTNAME } from '../../icqq.js'
 
 /**
  * 私信事件
@@ -22,7 +23,7 @@ export function DIRECT_MESSAGE(event: PrivateMessage): AEvent {
   const masterID = config.get('masterID')
   const user_id = String(event.sender.user_id)
   const e = {
-    platform: 'icqq',
+    platform: BOTNAME,
     event: 'MESSAGES' as (typeof EventEnum)[number],
     typing: 'CREATE' as (typeof TypingEnum)[number],
     boundaries: 'private' as 'publick' | 'private',

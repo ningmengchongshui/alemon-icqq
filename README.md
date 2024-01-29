@@ -1,5 +1,7 @@
 ## Alemon-Icqq
 
+> AlemonJS @1.2.0-rc.20 -- @latest
+
 ```sh
 npm i alemon-icqq
 ```

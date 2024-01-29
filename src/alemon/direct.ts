@@ -38,14 +38,15 @@ export async function directController(
       })
       .filter(element => typeof element === 'string')
       .join('')
+      .replace(/<@(.*)>/g, '')
     try {
       const buff = msg[isBuffer] as Buffer
       return {
         middle: [],
-        backhaul: await client.sendPrivateMsg(
-          Number(user_id),
-          segment.image(buff)
-        )
+        backhaul: await client.sendPrivateMsg(Number(user_id), [
+          segment.image(buff),
+          segment.text(cont)
+        ])
       }
     } catch (err) {
       console.error(err)
@@ -56,7 +57,7 @@ export async function directController(
   const content = Array.isArray(msg)
     ? msg.join('')
     : typeof msg === 'string'
-    ? msg
+    ? msg.replace(/<@(.*)>/g, '')
     : typeof msg === 'number'
     ? `${msg}`
     : ''
@@ -66,7 +67,6 @@ export async function directController(
   /**
    * http
    */
-
   const match = content.match(/<http>(.*?)<\/http>/)
   if (match) {
     const getUrl = match[1]
@@ -74,10 +74,10 @@ export async function directController(
     if (Buffer.isBuffer(msg)) {
       return {
         middle: [],
-        backhaul: await client.sendPrivateMsg(
-          Number(user_id),
-          segment.image(msg)
-        )
+        backhaul: await client.sendPrivateMsg(Number(user_id), [
+          segment.image(msg),
+          segment.text(content.replace(/<http>(.*?)<\/http>/g, ''))
+        ])
       }
     }
   }

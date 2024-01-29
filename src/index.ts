@@ -23,20 +23,20 @@ export default {
     if (!options.log_level) {
       options.log_level = 'off'
     }
+    if (!options.botAccount) {
+      options.botAccount = []
+    }
+    const account = String(options.account)
+    options.botAccount.push(account)
     // 加载配置
     for (const item in options) {
       config.set(item as any, options['item'])
     }
-
-    /**
-     * 保存机器人信息
-     */
-    BotMessage.set('id', String(options.account))
+    BotMessage.set('id', account)
     BotMessage.set(
       'avatar',
       `https://q1.qlogo.cn/g?b=qq&s=0&nk=${options.account}`
     )
-
     createWsHandler(options, event => {
       if (process.env?.ALEMONJS_EVENT == 'dev') console.info('event', event)
       if (conversation[event.post_type]) {

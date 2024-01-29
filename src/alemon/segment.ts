@@ -4,7 +4,7 @@ export const segmentONE = {
     return `<@${uid}>`
   },
   atAll: (): string => {
-    return `<@everyone>`
+    return `<@all>`
   },
   img: ABuffer.getPath,
   qrcode: ABuffer.qrcode,
