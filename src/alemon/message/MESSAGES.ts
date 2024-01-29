@@ -18,6 +18,12 @@ import {
  */
 export function MESSAGES(event: any): AEvent {
   const masterID = config.get('masterID')
+
+  /**
+   * group中
+   * guild_id = channel_id = group_id
+   */
+
   const e = {
     platform: 'one',
     event: 'MESSAGES' as (typeof EventEnum)[number],
