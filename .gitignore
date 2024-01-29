@@ -1,0 +1,18 @@
+# 依赖
+node_modules
+
+# 包
+plugins//**/*
+public/**/*
+lib/**/*
+types/**/*
+
+# test
+main.ts
+apps.ts
+
+# 打印
+logs
+log
+*.logs
+*.los

@@ -1,0 +1,17 @@
+# 依赖
+node_modules
+
+# 包
+plugins//**/*
+public/**/*
+lib/**/*
+types/**/*
+
+# test
+alemon.config.ts
+
+# 打印
+logs
+log
+*.logs
+*.los
