@@ -1,4 +1,6 @@
 import { ABuffer } from 'alemonjs'
+import { client } from '../sdk/wss.js'
+import { segment } from 'icqq'
 
 /**
  * 回复控制器
@@ -14,8 +16,13 @@ export async function directController(
   // is buffer
   if (Buffer.isBuffer(msg)) {
     try {
-      //
-      return { middle: [], backhaul: true }
+      return {
+        middle: [],
+        backhaul: await client.sendPrivateMsg(
+          Number(user_id),
+          segment.image(msg)
+        )
+      }
     } catch (err) {
       console.error(err)
       return { middle: [], backhaul: false }
@@ -33,9 +40,13 @@ export async function directController(
       .join('')
     try {
       const buff = msg[isBuffer] as Buffer
-
-      //
-      return { middle: [], backhaul: true }
+      return {
+        middle: [],
+        backhaul: await client.sendPrivateMsg(
+          Number(user_id),
+          segment.image(buff)
+        )
+      }
     } catch (err) {
       console.error(err)
       return { middle: [], backhaul: false }
@@ -61,12 +72,18 @@ export async function directController(
     const getUrl = match[1]
     const msg = await ABuffer.getUrl(getUrl)
     if (Buffer.isBuffer(msg)) {
-      //
+      return {
+        middle: [],
+        backhaul: await client.sendPrivateMsg(
+          Number(user_id),
+          segment.image(msg)
+        )
+      }
     }
   }
 
-  /**
-   */
-
-  return { middle: [], backhaul: true }
+  return {
+    middle: [],
+    backhaul: await client.sendPrivateMsg(Number(user_id), content)
+  }
 }

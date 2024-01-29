@@ -10,6 +10,7 @@ import {
   type MessageBingdingOption,
   type AEvent
 } from 'alemonjs'
+// icqq
 import { GroupMessage } from 'icqq'
 /**
  * 公信事件
@@ -25,7 +26,7 @@ export function MESSAGES(event: GroupMessage): AEvent {
     platform: 'icqq',
     event: 'MESSAGES' as (typeof EventEnum)[number],
     typing: 'CREATE' as (typeof TypingEnum)[number],
-    boundaries: 'publick' as 'publick' | 'private',
+    boundaries: 'private' as 'publick' | 'private',
     attribute: 'single' as 'group' | 'single',
     bot: BotMessage.get(),
     isMaster: Array.isArray(masterID)
@@ -34,9 +35,9 @@ export function MESSAGES(event: GroupMessage): AEvent {
     guild_id: group_id,
     guild_avatar: '',
     guild_name: event.group_name,
-    channel_name: '',
+    channel_name: event.group_name,
     channel_id: group_id,
-    attachments: [],
+    attachments: event.message ?? [],
     specials: [],
     at: false,
     at_user: undefined,
@@ -45,7 +46,7 @@ export function MESSAGES(event: GroupMessage): AEvent {
     msg: event.raw_message.trim(),
     msg_id: event.message_id,
     open_id: user_id,
-    quote: '',
+    quote: String(event.seq),
     user_id: user_id,
     user_avatar: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${user_id}`,
     user_name: event.sender.nickname,
@@ -68,14 +69,19 @@ export function MESSAGES(event: GroupMessage): AEvent {
       return await replyController(msg, guild_id)
     }
   }
-  const arr: {
-    qq: number
-    text: string
-    user_id: number
-  }[] = []
-  for (const item of arr) {
-    e.msg = e.msg.replace(item.text, '').trim()
+
+  for (const msg of event.message) {
+    if (msg.type == 'at') {
+      e.at = true
+      e.at_users.push({
+        id: String(msg.qq),
+        name: '',
+        avatar: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${msg.qq}`,
+        bot: msg.qq == e.bot.id
+      })
+    }
   }
+
   /**
    * 存在at
    */

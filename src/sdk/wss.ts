@@ -1,4 +1,4 @@
-import { createClient } from 'icqq'
+import { Client, createClient } from 'icqq'
 import { ClientConfig } from './config.js'
 import inquirer from 'inquirer'
 import * as lodash from 'lodash-es'
@@ -87,6 +87,8 @@ function sleep(ms: number) {
  */
 let inSlider = false
 
+let client: Client
+
 /**
  * 创建连接
  * @param options
@@ -96,23 +98,20 @@ export function createWsHandler(
   options: ClientConfig,
   fun: (...args: any[]) => any
 ) {
-  const client = createClient(options)
+  client = createClient(options)
 
   // 监听上线
-  client.on('system.online', () => {
+  client.on('system.online', e => {
     console.log('Logged in!')
   })
 
   // 监听下线
-  client.on('system.offline', () => {
+  client.on('system.offline', e => {
     console.log('offline')
   })
 
   // 消息
-  client.on('message', e => {
-    console.log('e', e)
-    fun(e)
-  })
+  client.on('message', fun)
 
   // 扫码事件
   client.on('system.login.qrcode', async e => {
@@ -285,3 +284,5 @@ export function createWsHandler(
     client.login(options.account, options.password)
   }
 }
+
+export { client }

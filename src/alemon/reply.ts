@@ -1,4 +1,7 @@
 import { ABuffer } from 'alemonjs'
+import { client } from '../sdk/wss.js'
+import { segment } from 'icqq'
+
 /**
  * 回复控制器
  * @param msg
@@ -13,8 +16,13 @@ export async function replyController(
   // is buffer
   if (Buffer.isBuffer(msg)) {
     try {
-      //
-      return { middle: [], backhaul: true }
+      return {
+        middle: [],
+        backhaul: await client.sendGroupMsg(
+          Number(guild_id),
+          segment.image(msg)
+        )
+      }
     } catch (err) {
       console.error(err)
       return { middle: [], backhaul: false }
@@ -32,9 +40,13 @@ export async function replyController(
       .join('')
     try {
       const buff = msg[isBuffer] as Buffer
-
-      //
-      return { middle: [], backhaul: true }
+      return {
+        middle: [],
+        backhaul: await client.sendGroupMsg(
+          Number(guild_id),
+          segment.image(buff)
+        )
+      }
     } catch (err) {
       console.error(err)
       return { middle: [], backhaul: false }
@@ -54,63 +66,23 @@ export async function replyController(
   /**
    * http
    */
-
   const match = content.match(/<http>(.*?)<\/http>/)
   if (match) {
     const getUrl = match[1]
     const msg = await ABuffer.getUrl(getUrl)
     if (Buffer.isBuffer(msg)) {
-      // 群聊
-    }
-  }
-  const message = []
-
-  const mentionRegex = /<@(\w+)>/g
-  const mentionAllRegex = /<@everyone>/g
-
-  let matchCentnt
-
-  let lastIndex = 0
-
-  while ((matchCentnt = mentionRegex.exec(content)) !== null) {
-    const user_id = matchCentnt[1]
-    const textBeforeMention = content.substring(lastIndex, matchCentnt.index)
-    if (textBeforeMention) {
-      message.push({
-        type: 'text',
-        data: {
-          text: textBeforeMention
-        }
-      })
-    }
-    if (user_id != 'everyone') {
-      message.push({
-        type: 'mention',
-        data: {
-          user_id
-        }
-      })
-    }
-    lastIndex = mentionRegex.lastIndex
-  }
-
-  const remainingText = content.substring(lastIndex)
-
-  if (remainingText) {
-    message.push({
-      type: 'text',
-      data: {
-        text: remainingText
+      return {
+        middle: [],
+        backhaul: await client.sendGroupMsg(
+          Number(guild_id),
+          segment.image(msg)
+        )
       }
-    })
+    }
   }
 
-  if (mentionAllRegex.test(content)) {
-    message.push({
-      type: 'mention_all',
-      data: {}
-    })
+  return {
+    middle: [],
+    backhaul: await client.sendGroupMsg(Number(guild_id), content)
   }
-
-  return { middle: [], backhaul: true }
 }

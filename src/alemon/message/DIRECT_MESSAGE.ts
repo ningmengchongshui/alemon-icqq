@@ -9,7 +9,7 @@ import {
   type MessageBingdingOption,
   type AEvent
 } from 'alemonjs'
-
+// icqq
 import { PrivateMessage } from 'icqq'
 
 /**
@@ -25,7 +25,7 @@ export function DIRECT_MESSAGE(event: PrivateMessage): AEvent {
     platform: 'icqq',
     event: 'MESSAGES' as (typeof EventEnum)[number],
     typing: 'CREATE' as (typeof TypingEnum)[number],
-    boundaries: 'publick' as 'publick' | 'private',
+    boundaries: 'private' as 'publick' | 'private',
     attribute: 'single' as 'group' | 'single',
     bot: BotMessage.get(),
     isMaster: Array.isArray(masterID)
@@ -36,7 +36,7 @@ export function DIRECT_MESSAGE(event: PrivateMessage): AEvent {
     guild_avatar: '',
     channel_name: '',
     channel_id: '',
-    attachments: [],
+    attachments: event.message ?? [],
     specials: [],
     //
     at: false,
@@ -45,7 +45,7 @@ export function DIRECT_MESSAGE(event: PrivateMessage): AEvent {
     msg_txt: event.raw_message,
     msg: event.raw_message.trim(),
     msg_id: event.message_id,
-    quote: '',
+    quote: String(event.seq),
     open_id: user_id,
     //
     user_id: user_id,
@@ -66,16 +66,5 @@ export function DIRECT_MESSAGE(event: PrivateMessage): AEvent {
       return await directController(msg, user_id)
     }
   }
-
-  /**
-   * 存在at
-   */
-  if (e.at) {
-    /**
-     * 得到第一个艾特
-     */
-    e.at_user = e.at_users.find(item => item.bot != true)
-  }
-
   return e
 }

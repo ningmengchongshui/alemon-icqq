@@ -10,6 +10,7 @@ types/**/*
 # test
 main.ts
 apps.ts
+alemon.env
 
 # 打印
 logs

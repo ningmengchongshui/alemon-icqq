@@ -3,7 +3,9 @@ import { createWsHandler, ClientConfig, config } from './sdk/index.js'
 import { Controllers } from './alemon/controller.js'
 import { BOTNAME } from './icqq.js'
 // alemonjs
-import { PlatformsItemType } from 'alemonjs'
+import { APPS, PlatformsItemType } from 'alemonjs'
+import { BotMessage } from './alemon/bot.js'
+
 /**
  * name保证唯一性
  * login会执行登录并传入alemonjs-res引用
@@ -16,10 +18,8 @@ export default {
   name: BOTNAME,
   /**
    * @param options 传入登录配置
-   * @param responseMessage 调用alemonjs的res消息
-   * @param responseEventType 调用alemonjs的res非指令消息
    */
-  login: (options: ClientConfig, responseMessage, responseEventType) => {
+  login: (options: ClientConfig) => {
     if (!options.log_level) {
       options.log_level = 'off'
     }
@@ -27,17 +27,23 @@ export default {
     for (const item in options) {
       config.set(item as any, options['item'])
     }
+
+    /**
+     * 保存机器人信息
+     */
+    BotMessage.set('id', String(options.account))
+    BotMessage.set(
+      'avatar',
+      `https://q1.qlogo.cn/g?b=qq&s=0&nk=${options.account}`
+    )
+
     createWsHandler(options, event => {
       if (process.env?.ALEMONJS_EVENT == 'dev') console.info('event', event)
       if (conversation[event.post_type]) {
-        if (event.post_type == 'message') {
-          conversation[event.post_type](event)
-        } else {
-          const e = conversation[event.type](event)
-          responseMessage(e)
-        }
+        const e = conversation[event.post_type](event)
+        APPS.responseMessage(e)
       } else {
-        //
+        // 事件不存在
       }
     })
   },
