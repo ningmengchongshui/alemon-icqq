@@ -7,10 +7,12 @@ public/**/*
 lib/**/*
 types/**/*
 
-# test
+# dev
 main.ts
 apps.ts
 alemon.env
+alemon.login.ts
+
 
 # 打印
 logs
